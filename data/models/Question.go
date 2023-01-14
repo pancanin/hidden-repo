@@ -1,27 +1,23 @@
 package data
 
-import (
-	"gorm.io/gorm"
-)
-
 type QuestionIn struct {
-	Body    string     `json:"body" binding:"required, gte=1, lte=500"` // Use template strings here
+	Body    string     `json:"body" binding:"required,min=10,max=500"` // Use template strings here
 	Options []OptionIn `json:"options"`
 }
 
 type OptionIn struct {
-	Body    string `json:"body" binding:"required, gte=10, lte=2000"`
+	Body    string `json:"body" binding:"required,min=1,max=2000"`
 	Correct bool   `json:"correct"`
 }
 
 type Question struct {
-	gorm.Model
+	ID      uint     `gorm:"primarykey"`
 	Body    string   `json:"body"`
 	Options []Option `json:"options"`
 }
 
 type Option struct {
-	gorm.Model
+	ID         uint   `gorm:"primarykey"`
 	Body       string `json:"body"`
 	Correct    bool   `json:"correct"`
 	QuestionID uint
@@ -39,15 +35,15 @@ type OptionOut struct {
 	Correct bool   `json:"correct"`
 }
 
-type OptionUpdate struct { // this should be called upsert
+type OptionUpsert struct { // this should be called upsert
 	ID      uint   `json:"id"`
-	Body    string `json:"body" binding:"required, gte=10, lte=2000"`
+	Body    string `json:"body" binding:"required,min=1,max=500"`
 	Correct bool   `json:"correct"`
 }
 
 type QuestionUpdate struct {
-	Body    string         `json:"body" binding:"required, gte=1, lte=500"`
-	Options []OptionUpdate `json:"options"`
+	Body    string         `json:"body" binding:"required,min=10,max=2000"`
+	Options []OptionUpsert `json:"options"`
 }
 
 func (m *Question) ToResponse() QuestionOut {
@@ -74,6 +70,16 @@ func ToResponse(options []Option) []OptionOut {
 	}
 
 	return optionsOut
+}
+
+func ToQuestionsResponse(questions []Question) []QuestionOut {
+	var questionsOut []QuestionOut
+
+	for _, question := range questions {
+		questionsOut = append(questionsOut, question.ToResponse())
+	}
+
+	return questionsOut
 }
 
 func (q *QuestionIn) ToDal() Question {
@@ -106,9 +112,10 @@ func (q *QuestionUpdate) ToDal() Question {
 	}
 }
 
-func (o *OptionUpdate) ToDal() Option {
+func (o *OptionUpsert) ToDal(questionId uint) Option {
 	return Option{
-		Body:    o.Body,
-		Correct: o.Correct,
+		Body:       o.Body,
+		Correct:    o.Correct,
+		QuestionID: questionId,
 	}
 }

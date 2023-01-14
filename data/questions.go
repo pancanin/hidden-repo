@@ -15,17 +15,27 @@ func NewQuestionsDal(db *gorm.DB) QuestionsDal {
 	return QuestionsDal{db}
 }
 
-func (dal QuestionsDal) Create(questionIn *models.QuestionIn) (models.Question, error) {
-	todo := models.Question{
+func (dal QuestionsDal) Create(questionIn *models.QuestionIn) (*models.Question, error) {
+	question := models.Question{
 		Body:    questionIn.Body,
 		Options: models.ToDal(questionIn.Options),
 	}
 
-	if err := dal.db.Create(&todo).Error; err != nil {
-		return models.Question{}, err
+	if err := dal.db.Create(&question).Error; err != nil {
+		return nil, err
 	}
 
-	return todo, nil
+	return dal.GetOne(question.ID)
+}
+
+func (dal QuestionsDal) GetOne(questionId uint) (*models.Question, error) {
+	question := models.Question{}
+
+	if err := dal.db.Preload("Options").First(&question, questionId).Error; err != nil {
+		return nil, err
+	}
+
+	return &question, nil
 }
 
 func (dal QuestionsDal) GetAll() ([]models.Question, error) {
@@ -50,20 +60,44 @@ func (dal QuestionsDal) Update(questionId uint, question *models.QuestionUpdate)
 			return err
 		}
 
-		for _, option := range question.Options {
-			dalOption := option.ToDal()
+		// Handle deleted options
+		var options []models.Option
 
-			// Create a method for that
-			if dal.db.Model(models.Option{}).Where("id = ?", option.ID).Updates(&dalOption).RowsAffected == 0 {
+		if err := dal.db.Model(models.Option{}).Find(&options).Where("question_id = ?", questionId).Error; err != nil {
+			return err
+		}
+
+		dbOptions := map[uint]bool{}
+
+		for _, option := range options {
+			dbOptions[option.ID] = true
+		}
+
+		userOptions := map[uint]bool{}
+
+		for _, option := range question.Options {
+			userOptions[option.ID] = true
+		}
+
+		// Which options are in DB but not in user options - delete them
+		for id := range dbOptions {
+			if _, existsInUserOpts := userOptions[id]; !existsInUserOpts {
+				if err := dal.db.Delete(&models.Option{}, id).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		// Handle existing and new options
+		for _, option := range question.Options {
+			dalOption := option.ToDal(questionId)
+
+			// TODO: Create a method for that
+			if dal.db.Model(models.Option{}).Where("id = ? AND question_id = ?", option.ID, questionId).Updates(&dalOption).RowsAffected == 0 {
 				dal.db.Create(&dalOption)
 			}
 		}
+
 		return nil
 	})
 }
-
-// func (dal TodoDal) Delete(id int) error {
-// 	return dal.db.
-// 		Delete(&models.Question{}, id).
-// 		Error
-// }
