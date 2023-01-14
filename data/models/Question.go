@@ -5,18 +5,18 @@ import (
 )
 
 type QuestionIn struct {
-	Body    string     `json:"body" binding:"required"`
+	Body    string     `json:"body" binding:"required, gte=1, lte=500"` // Use template strings here
 	Options []OptionIn `json:"options"`
 }
 
 type OptionIn struct {
-	Body    string `json:"body"`
+	Body    string `json:"body" binding:"required, gte=10, lte=2000"`
 	Correct bool   `json:"correct"`
 }
 
 type Question struct {
 	gorm.Model
-	Body    string   `json:"body" binding:"required"`
+	Body    string   `json:"body"`
 	Options []Option `json:"options"`
 }
 
@@ -29,7 +29,7 @@ type Option struct {
 
 type QuestionOut struct {
 	ID      uint        `json:"id"`
-	Body    string      `json:"body" binding:"required"`
+	Body    string      `json:"body"`
 	Options []OptionOut `json:"options"`
 }
 
@@ -37,6 +37,17 @@ type OptionOut struct {
 	ID      uint   `json:"id"`
 	Body    string `json:"body"`
 	Correct bool   `json:"correct"`
+}
+
+type OptionUpdate struct { // this should be called upsert
+	ID      uint   `json:"id"`
+	Body    string `json:"body" binding:"required, gte=10, lte=2000"`
+	Correct bool   `json:"correct"`
+}
+
+type QuestionUpdate struct {
+	Body    string         `json:"body" binding:"required, gte=1, lte=500"`
+	Options []OptionUpdate `json:"options"`
 }
 
 func (m *Question) ToResponse() QuestionOut {
@@ -65,6 +76,13 @@ func ToResponse(options []Option) []OptionOut {
 	return optionsOut
 }
 
+func (q *QuestionIn) ToDal() Question {
+	return Question{
+		Body:    q.Body,
+		Options: ToDal(q.Options),
+	}
+}
+
 func (o *OptionIn) ToDal() Option {
 	return Option{
 		Body:    o.Body,
@@ -80,4 +98,17 @@ func ToDal(optionsIn []OptionIn) []Option {
 	}
 
 	return options
+}
+
+func (q *QuestionUpdate) ToDal() Question {
+	return Question{
+		Body: q.Body,
+	}
+}
+
+func (o *OptionUpdate) ToDal() Option {
+	return Option{
+		Body:    o.Body,
+		Correct: o.Correct,
+	}
 }

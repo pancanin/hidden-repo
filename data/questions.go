@@ -15,56 +15,55 @@ func NewQuestionsDal(db *gorm.DB) QuestionsDal {
 	return QuestionsDal{db}
 }
 
-func (dal TodoDal) Create(todoItem *models.TodoIn) (models.TodoModel, error) {
-	todo := models.TodoModel{
-		Title:     todoItem.Title,
-		Completed: todoItem.Completed,
-		DueDate:   todoItem.DueDate,
+func (dal QuestionsDal) Create(questionIn *models.QuestionIn) (models.Question, error) {
+	todo := models.Question{
+		Body:    questionIn.Body,
+		Options: models.ToDal(questionIn.Options),
 	}
 
 	if err := dal.db.Create(&todo).Error; err != nil {
-		return models.TodoModel{}, err
+		return models.Question{}, err
 	}
 
 	return todo, nil
 }
 
-func (dal TodoDal) GetAll() ([]models.TodoModel, error) {
-	var todos []models.TodoModel
+func (dal QuestionsDal) GetAll() ([]models.Question, error) {
+	var questions []models.Question
 
-	if err := dal.db.Model(models.TodoModel{}).Find(&todos).Error; err != nil {
-		return todos, err
+	if err := dal.db.Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
+		return questions, err
 	}
 
-	return todos, nil
+	return questions, nil
 }
 
-func (dal TodoDal) Get(id int) (models.TodoModel, error) {
-	var todo models.TodoModel
+func (dal QuestionsDal) Update(questionId uint, question *models.QuestionUpdate) error {
+	return dal.db.Transaction(func(tx *gorm.DB) error {
+		err := dal.db.
+			Model(models.Question{}).
+			Where("id = ?", questionId).
+			Updates(question.ToDal()).
+			Error
 
-	if err := dal.db.Model(models.TodoModel{}).First(&todo, id).Error; err != nil {
-		return todo, err
-	}
+		if err != nil {
+			return err
+		}
 
-	return todo, nil
+		for _, option := range question.Options {
+			dalOption := option.ToDal()
+
+			// Create a method for that
+			if dal.db.Model(models.Option{}).Where("id = ?", option.ID).Updates(&dalOption).RowsAffected == 0 {
+				dal.db.Create(&dalOption)
+			}
+		}
+		return nil
+	})
 }
 
-func (dal TodoDal) Update(todo *models.TodoUpdate) (models.TodoModel, error) {
-	err := dal.db.
-		Model(models.TodoModel{}).
-		Where("id = ?", todo.Id).
-		Updates(todo).
-		Error
-
-	if err != nil {
-		return models.TodoModel{}, err
-	}
-
-	return dal.Get(todo.Id)
-}
-
-func (dal TodoDal) Delete(id int) error {
-	return dal.db.
-		Delete(&models.TodoModel{}, id).
-		Error
-}
+// func (dal TodoDal) Delete(id int) error {
+// 	return dal.db.
+// 		Delete(&models.Question{}, id).
+// 		Error
+// }
