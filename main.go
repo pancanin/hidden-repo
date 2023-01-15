@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -31,5 +33,15 @@ func main() {
 	r.PUT("/question/:id", questionHandler.Update)
 	// r.DELETE("/todo/:id", todoHandler.Delete)
 
-	http.ListenAndServe(":3000", r)
+	port := os.Getenv("API_PORT")
+
+	if len(port) == 0 {
+		port = "3000"
+	}
+
+	portParam := fmt.Sprintf(":%s", port)
+
+	fmt.Printf("Server listening on port %s", portParam)
+
+	http.ListenAndServe(portParam, r)
 }
