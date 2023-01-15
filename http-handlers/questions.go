@@ -1,6 +1,7 @@
 package httphandlers
 
 import (
+	"fmt"
 	"net/http"
 	data "questions/data"
 	models "questions/data/models"
@@ -62,8 +63,10 @@ func (handler QuestionHandler) Create(ctx *gin.Context) {
 func (handler QuestionHandler) GetPaginated(ctx *gin.Context) {
 	userId, err := uuid.FromString(ctx.Request.Header.Get(models.USER_HEADER_ID))
 
+	fmt.Println("Resolved user id: " + userId.String())
+
 	if err != nil {
-		handler.httpErrors.GenericServerError(ctx)
+		handler.httpErrors.GenericServerErrorEx(ctx, err)
 		return
 	}
 
