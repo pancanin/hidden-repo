@@ -23,13 +23,14 @@ func main() {
 		log.Fatal("Unable to connect to DB")
 	}
 
-	dals.NewUsersDal(db)
+	usersDal := dals.NewUsersDal(db)
 	questionsDal := dals.NewQuestionsDal(db)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
-
+	secret := []byte("qwertyuiopasdfghjklzxcvbnm123456")
+	jwtMiddleware := auth.NewJWTAuthMiddleware(secret, &usersDal)
 	r := gin.Default()
 
-	r.Use(auth.JWTTokenAuthMiddleware())
+	r.Use(jwtMiddleware.JWTTokenAuthMiddleware())
 
 	r.POST("/question", questionHandler.Create)
 	r.GET("/questions", questionHandler.GetPaginated)

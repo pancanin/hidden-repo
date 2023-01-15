@@ -14,13 +14,20 @@ import (
 )
 
 type JWTAuthMiddleware struct {
-	errMessages      httperrors.ErrorMessages
-	hmacSampleSecret []byte
-	userDal          *dals.UsersDal
+	ErrMessages httperrors.ErrorMessages
+	Secret      []byte
+	UserDal     *dals.UsersDal
+}
+
+func NewJWTAuthMiddleware(secret []byte, userDal *dals.UsersDal) JWTAuthMiddleware {
+	return JWTAuthMiddleware{
+		ErrMessages: httperrors.ErrorMessages{},
+		Secret:      secret,
+		UserDal:     userDal,
+	}
 }
 
 func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() gin.HandlerFunc {
-	m.hmacSampleSecret = []byte("qwertyuiopasdfghjklzxcvbnm123456")
 	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
 
 	if authEnabledFlag {
@@ -34,7 +41,7 @@ func (m *JWTAuthMiddleware) parseAuthReq(ctx *gin.Context) {
 	authHeader := ctx.Request.Header["Authorization"]
 
 	if len(authHeader) == 0 {
-		m.errMessages.NotAuthenticated(ctx)
+		m.ErrMessages.NotAuthenticated(ctx)
 		ctx.Abort()
 		return
 	}
@@ -42,7 +49,7 @@ func (m *JWTAuthMiddleware) parseAuthReq(ctx *gin.Context) {
 	authHeaderContents := strings.Split(authHeader[0], " ")
 
 	if len(authHeaderContents) < 2 {
-		m.errMessages.NotAuthenticated(ctx)
+		m.ErrMessages.NotAuthenticated(ctx)
 		ctx.Abort()
 		return
 	}
@@ -54,30 +61,30 @@ func (m *JWTAuthMiddleware) parseAuthReq(ctx *gin.Context) {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return m.hmacSampleSecret, nil
+		return m.Secret, nil
 	})
 
 	if err != nil {
-		m.errMessages.NotAuthenticated(ctx)
+		m.ErrMessages.NotAuthenticated(ctx)
 		ctx.Abort()
 		return
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		ctx.Request.Header.Add("username", fmt.Sprintf("%s", claims["name"]))
+		ctx.Request.Header.Add(models.USER_HEADER_ID, fmt.Sprintf("%s", claims[models.USER_HEADER_ID]))
 		ctx.Next()
 	} else {
-		m.errMessages.NotAuthenticated(ctx)
+		m.ErrMessages.NotAuthenticated(ctx)
 		ctx.Abort()
 		return
 	}
 }
 
 func (m *JWTAuthMiddleware) noopAuthReq(ctx *gin.Context) {
-	user, err := m.userDal.GetByUsername(models.SUPER_USER_NAME)
+	user, err := m.UserDal.GetByUsername(models.SUPER_USER_NAME)
 
 	if err != nil {
-		m.errMessages.NotAuthenticated(ctx)
+		m.ErrMessages.NotAuthenticated(ctx)
 		ctx.Abort()
 		return
 	}
