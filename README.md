@@ -46,6 +46,16 @@ These requirements are not required, but feel free to complete some of them if t
 
 - Because of the ordering requirements and difficulty to track the options - whether they are deleted, updated, created, I decided to delete them when updating a question and recreate them from the user request.
 
+## What could be done better, IMO
+
+- More logging. Not really sure the best approach for logging in Go projects. You have fmt, log.Fatal and probably 10 more options :)) I feel like I'm in JS land again :O
+
+- Tests! Most of the stuff is trivial to test manually, but I feel this project can become complex and it is good to be reassured in the basic functionality before adding more features or, heaven forbid, modify existing features!
+
+- More granular DAL methods. Currently there is some business logic there, but as it is part of a transaction, I felt it belongs there.
+
+- Full-fledged authentication - login and register. I did not have the muscle this time to pull it of in 48 hours, but I will continue tinkering with it in the future! :)
+
 ## Env. variables
 
 - `API_PORT` - the port on which the api will run
