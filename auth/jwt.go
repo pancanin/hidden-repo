@@ -19,10 +19,10 @@ type JWTAuthMiddleware struct {
 	UserDal     *dals.UsersDal
 }
 
-func NewJWTAuthMiddleware(secret []byte, userDal *dals.UsersDal) JWTAuthMiddleware {
+func NewJWTAuthMiddleware(userDal *dals.UsersDal) JWTAuthMiddleware {
 	return JWTAuthMiddleware{
 		ErrMessages: httperrors.ErrorMessages{},
-		Secret:      secret,
+		Secret:      []byte{},
 		UserDal:     userDal,
 	}
 }
@@ -32,6 +32,19 @@ func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() gin.HandlerFunc {
 
 	if authEnabledFlag {
 		fmt.Println("Auth enabled!")
+
+		secretEnvVar, haveSecretEnvVar := os.LookupEnv("JWT_SECRET")
+
+		if haveSecretEnvVar {
+			m.Secret = []byte(secretEnvVar)
+		} else {
+			fmt.Println("You must specify a JWT_SECRET env. variable")
+
+			return func(ctx *gin.Context) {
+				ctx.Abort()
+			}
+		}
+
 		return m.parseAuthReq
 	}
 

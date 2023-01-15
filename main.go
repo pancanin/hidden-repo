@@ -17,32 +17,20 @@ import (
 )
 
 func main() {
-	// Secret parsing
-	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
-	secret := []byte{}
-
-	if authEnabledFlag {
-		secretEnvVar, haveSecretEnvVar := os.LookupEnv("JWT_SECRET")
-
-		if haveSecretEnvVar {
-			secret = []byte(secretEnvVar)
-		} else {
-			fmt.Println("You must specify a JWT_SECRET env. variable")
-			return
-		}
-	}
-
+	/* DB connection */
 	db, err := gorm.Open(sqlite.Open("questions.db"), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal("Unable to connect to DB")
 	}
 
+	/* Dependency wiring */
 	usersDal := dals.NewUsersDal(db)
 	questionsDal := dals.NewQuestionsDal(db)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
+	jwtMiddleware := auth.NewJWTAuthMiddleware(&usersDal)
 
-	jwtMiddleware := auth.NewJWTAuthMiddleware(secret, &usersDal)
+	/* Setting up API routes */
 	r := gin.Default()
 
 	r.Use(jwtMiddleware.JWTTokenAuthMiddleware())
@@ -62,5 +50,6 @@ func main() {
 
 	fmt.Printf("Server listening on port %s\n", portParam)
 
+	/* "Fire it up, man!" */
 	http.ListenAndServe(portParam, r)
 }
