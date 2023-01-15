@@ -26,7 +26,19 @@ func main() {
 	usersDal := dals.NewUsersDal(db)
 	questionsDal := dals.NewQuestionsDal(db)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
-	secret := []byte("qwertyuiopasdfghjklzxcvbnm123456")
+
+	// Secret parsing
+	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
+	secret := []byte{}
+
+	if authEnabledFlag {
+		secretEnvVar, haveSecretEnvVar := os.LookupEnv("JWT_SECRET")
+
+		if haveSecretEnvVar {
+			secret = []byte(secretEnvVar)
+		}
+	}
+
 	jwtMiddleware := auth.NewJWTAuthMiddleware(secret, &usersDal)
 	r := gin.Default()
 
