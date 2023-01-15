@@ -58,7 +58,7 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 
 	if err != nil {
-		handler.httpErrors.BadRequestMsg(ctx, "Invalid id parameter")
+		handler.httpErrors.BadRequestMsg(ctx, httperrors.INVALID_ID_MSG)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 	}
 
 	if questionToUpdate == nil {
-		handler.httpErrors.BadRequestMsg(ctx, "Question does not exist.")
+		handler.httpErrors.EntityNotFound(ctx, "Question")
 		return
 	}
 

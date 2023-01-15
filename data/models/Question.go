@@ -1,7 +1,7 @@
 package data
 
 type QuestionIn struct {
-	Body    string     `json:"body" binding:"required,min=10,max=500"` // Use template strings here
+	Body    string     `json:"body" binding:"required,min=10,max=500"`
 	Options []OptionIn `json:"options"`
 }
 
