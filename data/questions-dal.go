@@ -26,6 +26,7 @@ func (dal QuestionsDal) Create(params models.QuestionCreateParams) (*models.Ques
 	question := models.Question{
 		Body:    params.Question.Body,
 		Options: models.ToDal(params.Question.Options),
+		UserID:  params.UserID,
 	}
 
 	if err := dal.db.Create(&question).Error; err != nil {
@@ -41,7 +42,11 @@ func (dal QuestionsDal) Create(params models.QuestionCreateParams) (*models.Ques
 func (dal QuestionsDal) GetOne(params models.QuestionGetOneParams) (*models.Question, error) {
 	question := models.Question{}
 
-	if err := dal.db.Preload("Options").First(&question, params.QuestionID).Error; err != nil {
+	if err := dal.db.Preload("Options").
+		Where("id = ? AND user_id = ?", params.QuestionID, params.UserID).
+		First(&question).
+		Error; err != nil {
+
 		return nil, err
 	}
 
@@ -51,7 +56,13 @@ func (dal QuestionsDal) GetOne(params models.QuestionGetOneParams) (*models.Ques
 func (dal QuestionsDal) GetPaginated(params models.QuestionsGetPaginatedParams) ([]models.Question, error) {
 	var questions []models.Question
 
-	if err := dal.db.Scopes(dal.Paginate(params.Req, PAGING_MAX_PAGES, PAGING_DEFAULT_PAGE_SIZE)).Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
+	if err := dal.db.
+		Scopes(dal.Paginate(params.Req, PAGING_MAX_PAGES, PAGING_DEFAULT_PAGE_SIZE)).
+		Model(models.Question{}).
+		Preload("Options").
+		Where("user_id = ?", params.UserID).
+		Find(&questions).Error; err != nil {
+
 		return questions, err
 	}
 
@@ -62,7 +73,7 @@ func (dal QuestionsDal) Update(params models.QuestionUpdateParams) error {
 	return dal.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.
 			Model(models.Question{}).
-			Where("id = ?", params.QuestionID).
+			Where("id = ? AND user_id = ?", params.QuestionID, params.UserID).
 			Updates(params.Question.ToDal()).
 			Error
 
@@ -89,5 +100,7 @@ func (dal QuestionsDal) Update(params models.QuestionUpdateParams) error {
 }
 
 func (dal QuestionsDal) Delete(params models.QuestionDeleteParams) error {
-	return dal.db.Delete(models.Question{}, params.QuestionID).Error
+	return dal.db.
+		Where("id = ? AND user_id = ?", params.QuestionID, params.UserID).
+		Delete(models.Question{}).Error
 }

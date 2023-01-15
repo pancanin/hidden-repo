@@ -9,6 +9,6 @@ type User struct {
 }
 
 const (
-	USERNAME_ID_NAME = "id"
-	SUPER_USER_NAME  = "admin"
+	USER_HEADER_ID  = "id"
+	SUPER_USER_NAME = "admin"
 )

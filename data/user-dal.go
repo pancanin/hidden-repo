@@ -22,3 +22,13 @@ func NewUsersDal(db *gorm.DB) UsersDal {
 
 	return UsersDal{db}
 }
+
+func (dal *UsersDal) GetByUsername(username string) (models.User, error) {
+	user := models.User{}
+
+	if err := dal.db.Where("username = ?", username).First(&user).Error; err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
