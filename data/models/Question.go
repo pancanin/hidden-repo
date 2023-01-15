@@ -11,15 +11,14 @@ type OptionIn struct {
 }
 
 type Question struct {
-	ID      uint     `gorm:"primarykey"`
-	Body    string   `json:"body"`
-	Options []Option `json:"options"`
+	ID      uint `gorm:"primarykey"`
+	Body    string
+	Options []Option
 }
 
 type Option struct {
-	ID         uint   `gorm:"primarykey"`
-	Body       string `json:"body"`
-	Correct    bool   `json:"correct"`
+	Body       string
+	Correct    bool
 	QuestionID uint
 }
 
@@ -30,20 +29,8 @@ type QuestionOut struct {
 }
 
 type OptionOut struct {
-	ID      uint   `json:"id"`
 	Body    string `json:"body"`
 	Correct bool   `json:"correct"`
-}
-
-type OptionUpsert struct { // this should be called upsert
-	ID      uint   `json:"id"`
-	Body    string `json:"body" binding:"required,min=1,max=500"`
-	Correct bool   `json:"correct"`
-}
-
-type QuestionUpdate struct {
-	Body    string         `json:"body" binding:"required,min=10,max=2000"`
-	Options []OptionUpsert `json:"options"`
 }
 
 func (m *Question) ToResponse() QuestionOut {
@@ -56,7 +43,6 @@ func (m *Question) ToResponse() QuestionOut {
 
 func (o *Option) ToResponse() OptionOut {
 	return OptionOut{
-		ID:      o.ID,
 		Body:    o.Body,
 		Correct: o.Correct,
 	}
@@ -104,18 +90,4 @@ func ToDal(optionsIn []OptionIn) []Option {
 	}
 
 	return options
-}
-
-func (q *QuestionUpdate) ToDal() Question {
-	return Question{
-		Body: q.Body,
-	}
-}
-
-func (o *OptionUpsert) ToDal(questionId uint) Option {
-	return Option{
-		Body:       o.Body,
-		Correct:    o.Correct,
-		QuestionID: questionId,
-	}
 }

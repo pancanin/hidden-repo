@@ -36,7 +36,7 @@ func (handler QuestionHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, &createdQuestion)
+	ctx.JSON(http.StatusCreated, createdQuestion.ToResponse())
 }
 
 func (handler QuestionHandler) GetAll(ctx *gin.Context) {
@@ -58,7 +58,7 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	var questionUpdateData models.QuestionUpdate
+	var questionUpdateData models.QuestionIn
 
 	if err := ctx.BindJSON(&questionUpdateData); err != nil {
 		handler.httpErrors.BadRequestErr(ctx, err)
@@ -78,11 +78,18 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 	}
 
 	if err := handler.dal.Update(uint(id), &questionUpdateData); err != nil {
-		handler.httpErrors.GenericServerError(ctx) // This might not be correct for all cases.
+		handler.httpErrors.GenericServerError(ctx)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, nil)
+	updatedQuestion, err := handler.dal.GetOne(uint(id))
+
+	if err != nil {
+		handler.httpErrors.GenericServerError(ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedQuestion)
 }
 
 // func (handler TodoHandler) Delete(ctx *gin.Context) {

@@ -48,9 +48,9 @@ func (dal QuestionsDal) GetAll() ([]models.Question, error) {
 	return questions, nil
 }
 
-func (dal QuestionsDal) Update(questionId uint, question *models.QuestionUpdate) error {
+func (dal QuestionsDal) Update(questionId uint, question *models.QuestionIn) error {
 	return dal.db.Transaction(func(tx *gorm.DB) error {
-		err := dal.db.
+		err := tx.
 			Model(models.Question{}).
 			Where("id = ?", questionId).
 			Updates(question.ToDal()).
@@ -60,50 +60,20 @@ func (dal QuestionsDal) Update(questionId uint, question *models.QuestionUpdate)
 			return err
 		}
 
-		if err := dal.handleDeletedOptions(questionId, question.Options); err != nil {
+		if err := tx.Where("question_id = ?", questionId).Delete(models.Option{}).Error; err != nil {
 			return err
 		}
 
-		// Handle existing and new options
-		for _, option := range question.Options {
-			dalOption := option.ToDal(questionId)
+		dalOptions := models.ToDal(question.Options)
 
-			if dal.db.Model(models.Option{}).Where("id = ? AND question_id = ?", option.ID, questionId).Updates(&dalOption).RowsAffected == 0 {
-				dal.db.Create(&dalOption)
-			}
+		for idx := range dalOptions {
+			dalOptions[idx].QuestionID = questionId
+		}
+
+		if err := tx.Create(dalOptions).Error; err != nil {
+			return err
 		}
 
 		return nil
 	})
-}
-
-func (dal *QuestionsDal) handleDeletedOptions(questionId uint, optionsUpsert []models.OptionUpsert) error {
-	var options []models.Option
-
-	if err := dal.db.Model(models.Option{}).Find(&options).Where("question_id = ?", questionId).Error; err != nil {
-		return err
-	}
-
-	dbOptions := map[uint]bool{}
-
-	for _, option := range options {
-		dbOptions[option.ID] = true
-	}
-
-	userOptions := map[uint]bool{}
-
-	for _, option := range optionsUpsert {
-		userOptions[option.ID] = true
-	}
-
-	// Which options are in DB but not in user options - delete them
-	for id := range dbOptions {
-		if _, existsInUserOpts := userOptions[id]; !existsInUserOpts {
-			if err := dal.db.Delete(&models.Option{}, id).Error; err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
