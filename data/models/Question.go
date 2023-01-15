@@ -6,6 +6,10 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	QUESTION_ENTITY_NAME = "Question"
+)
+
 type QuestionIn struct {
 	Body    string     `json:"body" binding:"required,min=10,max=500"`
 	Options []OptionIn `json:"options"`

@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	ID_PARAM_NAME        = "id"
-	QUESTION_ENTITY_NAME = "Question"
+	ID_PARAM_NAME = "id"
 )
 
 type QuestionHandler struct {
@@ -80,7 +79,7 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 	}
 
 	if _, err := handler.dal.GetOne(id); err != nil {
-		handler.httpErrors.EntityNotFound(ctx, QUESTION_ENTITY_NAME)
+		handler.httpErrors.EntityNotFound(ctx, models.QUESTION_ENTITY_NAME)
 		return
 	}
 
@@ -108,7 +107,7 @@ func (handler QuestionHandler) Delete(ctx *gin.Context) {
 	}
 
 	if _, err := handler.dal.GetOne(id); err != nil {
-		handler.httpErrors.EntityNotFound(ctx, QUESTION_ENTITY_NAME)
+		handler.httpErrors.EntityNotFound(ctx, models.QUESTION_ENTITY_NAME)
 		return
 	}
 

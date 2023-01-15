@@ -2,6 +2,10 @@ package data
 
 import uuid "github.com/satori/go.uuid"
 
+const (
+	OPTION_ENTITY_NAME = "Option"
+)
+
 type OptionIn struct {
 	Body    string `json:"body" binding:"required,min=1,max=2000"`
 	Correct bool   `json:"correct"`

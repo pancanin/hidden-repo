@@ -8,6 +8,11 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	PAGING_MAX_PAGES         = 100
+	PAGING_DEFAULT_PAGE_SIZE = 10
+)
+
 type QuestionsDal struct {
 	db *gorm.DB
 }
@@ -44,7 +49,7 @@ func (dal QuestionsDal) GetOne(questionId uuid.UUID) (*models.Question, error) {
 func (dal QuestionsDal) GetPaginated(r *http.Request) ([]models.Question, error) {
 	var questions []models.Question
 
-	if err := dal.db.Scopes(dal.Paginate(r, 100, 10)).Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
+	if err := dal.db.Scopes(dal.Paginate(r, PAGING_MAX_PAGES, PAGING_DEFAULT_PAGE_SIZE)).Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
 		return questions, err
 	}
 
