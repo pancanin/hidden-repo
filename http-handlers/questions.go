@@ -47,7 +47,9 @@ func (handler QuestionHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, createdQuestion.ToResponse())
 }
 
-func (handler QuestionHandler) GetAll(ctx *gin.Context) {
+func (handler QuestionHandler) GetPaginated(ctx *gin.Context) {
+	//username := ctx.Request.Header.Get("username")
+
 	questions, err := handler.dal.GetPaginated(ctx.Request)
 
 	if err != nil {

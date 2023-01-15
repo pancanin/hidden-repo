@@ -20,6 +20,7 @@ type QuestionsDal struct {
 func NewQuestionsDal(db *gorm.DB) QuestionsDal {
 	db.AutoMigrate(&models.Question{}, &models.Option{})
 	db.Exec("PRAGMA foreign_keys = ON;")
+
 	return QuestionsDal{db}
 }
 

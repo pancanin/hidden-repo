@@ -39,3 +39,7 @@ func (ErrorMessages) GenericServerError(ctx *gin.Context) {
 func (ErrorMessages) GenericServerErrorEx(ctx *gin.Context, e error) {
 	ctx.JSON(http.StatusInternalServerError, ErrorResponse{Message: e.Error()})
 }
+
+func (ErrorMessages) NotAuthenticated(ctx *gin.Context) {
+	ctx.JSON(http.StatusUnauthorized, nil)
+}
