@@ -1,0 +1,139 @@
+{
+	"info": {
+		"_postman_id": "a2fad278-8c80-40bd-bed7-6762a30f1c06",
+		"name": "Questions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Question",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWQiOiIxYTFlN2VlMi1mM2VlLTRkM2UtOTc0OS01YjNkNGNkN2M3MjkiLCJpYXQiOjE1MTYyMzkwMjJ9.iVFA4L_Y43vz9ThKex-brs5x_Dn0YKrC9eXCuFct-lU",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"body\": \"Is Kotlin pass by reference or pass by value?\",\n    \"options\": [\n        {\n            \"body\": \"By reference\",\n            \"correct\": true\n        },\n        {\n            \"body\": \"By value\",\n            \"correct\": false\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/question",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"question"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Questions",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWQiOiIxYTFlN2VlMi1mM2VlLTRkM2UtOTc0OS01YjNkNGNkN2M3MjkiLCJpYXQiOjE1MTYyMzkwMjJ9.iVFA4L_Y43vz9ThKex-brs5x_Dn0YKrC9eXCuFct-lU",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/questions?page=&page_size=",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"questions"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": ""
+						},
+						{
+							"key": "page_size",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Question",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWQiOiIxYTFlN2VlMi1mM2VlLTRkM2UtOTc0OS01YjNkNGNkN2M3MjkiLCJpYXQiOjE1MTYyMzkwMjJ9.iVFA4L_Y43vz9ThKex-brs5x_Dn0YKrC9eXCuFct-lU",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"body\": \"How do you define a variable that does not hoist in JS? Huh, whut?\",\n    \"options\": [\n        {\n            \"body\": \"With var keyword ofc\",\n            \"correct\": false\n        },\n        {\n            \"body\": \"With let keyword\",\n            \"correct\": true\n        },\n        {\n            \"body\": \"With const keyword\",\n            \"correct\": true\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{host}}:{{port}}/question/dfb17b92-e3e1-4d31-8af6-8091b668a397",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"question",
+						"dfb17b92-e3e1-4d31-8af6-8091b668a397"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Question",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWQiOiJmY2RkMDJhNS0wZDc2LTQ3MjMtOTliZi05Zjg5ZGY5M2ZlNWIiLCJpYXQiOjE1MTYyMzkwMjJ9.GWlyjCgBZVJSPW7mduscNEthp0_thehhugJ8aosj35U",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://{{host}}:{{port}}/question/21ee2d2f-d2bf-422a-85a1-7db5eaaef30e",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"question",
+						"21ee2d2f-d2bf-422a-85a1-7db5eaaef30e"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,7 +1,7 @@
 # Questions API
 
 Hi! :)
-Here is what I did for the time being.
+Here is what I did for the time being. :man-mechanic:
 
 ## Basic requirements
 
@@ -30,6 +30,61 @@ These requirements are not required, but feel free to complete some of them if t
 - [ ] Use GraphQL instead of REST to implement the API
 
   Define a schema for the API that covers the basic requirements and implement all queries and resolvers. You do not need to implement the REST API if you choose to do this.
+
+
+## The API
+
+I added a postman collection, but not everyone uses that, so here it is...
+
+With auth enabled, set `Authorization` header with value `Bearer token_here`.
+
+- POST /api/v1/question - Create question
+
+Payload:
+
+```
+{
+    "body": "Is Kotlin pass by reference or pass by value?",
+    "options": [
+        {
+            "body": "By reference",
+            "correct": true
+        },
+        {
+            "body": "By value",
+            "correct": false
+        }
+    ]
+}
+```
+
+- GET /api/v1/questions?page=N&page_size=M - Get questions with pagination
+
+- PUT /api/v1/question/{id} - Update question by id.
+
+Payload:
+
+```
+{
+    "body": "How do you define a variable that does not hoist in JS? Huh, whut?",
+    "options": [
+        {
+            "body": "With var keyword ofc",
+            "correct": false
+        },
+        {
+            "body": "With let keyword",
+            "correct": true
+        },
+        {
+            "body": "With const keyword",
+            "correct": true
+        }
+    ]
+}
+```
+
+- DELETE /api/v1/question/{id} - Delete question by id
 
 
 ## A few notes about the implementation
