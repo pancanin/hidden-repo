@@ -33,7 +33,14 @@ func main() {
 	/* Setting up API routes */
 	r := gin.Default()
 
-	r.Use(jwtMiddleware.JWTTokenAuthMiddleware())
+	middlewareFunc, err := jwtMiddleware.JWTTokenAuthMiddleware()
+
+	if err != nil {
+		log.Fatalf("There were problems while setting up auth middleware: %s", err)
+		return
+	}
+
+	r.Use(middlewareFunc)
 
 	r.POST("/question", questionHandler.Create)
 	r.GET("/questions", questionHandler.GetPaginated)

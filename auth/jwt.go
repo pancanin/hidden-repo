@@ -19,6 +19,10 @@ type JWTAuthMiddleware struct {
 	UserDal     *dals.UsersDal
 }
 
+const (
+	JWT_SECRET_MISSING_MSG = "you must specify a JWT_SECRET env. variable"
+)
+
 func NewJWTAuthMiddleware(userDal *dals.UsersDal) JWTAuthMiddleware {
 	return JWTAuthMiddleware{
 		ErrMessages: httperrors.ErrorMessages{},
@@ -27,7 +31,7 @@ func NewJWTAuthMiddleware(userDal *dals.UsersDal) JWTAuthMiddleware {
 	}
 }
 
-func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() gin.HandlerFunc {
+func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() (gin.HandlerFunc, error) {
 	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
 
 	if authEnabledFlag {
@@ -38,19 +42,15 @@ func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() gin.HandlerFunc {
 		if haveSecretEnvVar {
 			m.Secret = []byte(secretEnvVar)
 		} else {
-			fmt.Println("You must specify a JWT_SECRET env. variable")
-
-			return func(ctx *gin.Context) {
-				ctx.Abort()
-			}
+			return nil, fmt.Errorf(JWT_SECRET_MISSING_MSG)
 		}
 
-		return m.parseAuthReq
+		return m.parseAuthReq, nil
 	}
 
 	fmt.Println("Auth disabled!")
 
-	return m.noopAuthReq
+	return m.noopAuthReq, nil
 }
 
 func (m *JWTAuthMiddleware) parseAuthReq(ctx *gin.Context) {
