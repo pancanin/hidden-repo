@@ -3,6 +3,11 @@
 Hi! :)
 Here is what I did for the time being. :man-mechanic:
 
+## Tested on
+
+- Linux and Go 1.19
+- MacOS and Go 1.17, so you can downgrade go in go.mod to 1.17 and it should build.
+
 ## Basic requirements
 
 Your solution should meet all these requirements.
@@ -31,6 +36,15 @@ These requirements are not required, but feel free to complete some of them if t
 
   Define a schema for the API that covers the basic requirements and implement all queries and resolvers. You do not need to implement the REST API if you choose to do this.
 
+## How to run it
+
+All dependencies are in go.mod. Tested on Linux.
+
+```
+cd proj_folder
+go build
+./questions
+```
 
 ## The API
 
