@@ -17,16 +17,6 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open(sqlite.Open("questions.db"), &gorm.Config{})
-
-	if err != nil {
-		log.Fatal("Unable to connect to DB")
-	}
-
-	usersDal := dals.NewUsersDal(db)
-	questionsDal := dals.NewQuestionsDal(db)
-	questionHandler := handlers.NewQuestionHandler(&questionsDal)
-
 	// Secret parsing
 	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
 	secret := []byte{}
@@ -36,8 +26,21 @@ func main() {
 
 		if haveSecretEnvVar {
 			secret = []byte(secretEnvVar)
+		} else {
+			fmt.Println("You must specify a JWT_SECRET env. variable")
+			return
 		}
 	}
+
+	db, err := gorm.Open(sqlite.Open("questions.db"), &gorm.Config{})
+
+	if err != nil {
+		log.Fatal("Unable to connect to DB")
+	}
+
+	usersDal := dals.NewUsersDal(db)
+	questionsDal := dals.NewQuestionsDal(db)
+	questionHandler := handlers.NewQuestionHandler(&questionsDal)
 
 	jwtMiddleware := auth.NewJWTAuthMiddleware(secret, &usersDal)
 	r := gin.Default()

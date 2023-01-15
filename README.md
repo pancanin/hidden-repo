@@ -3,7 +3,7 @@
 ## Env. variables
 
 `API_PORT` - the port on which the api will run
-`AUTH_ENABLED` - set it to anything to enable auth.
+`AUTH_ENABLED` - set it to anything to enable auth. To disable it again in the same CLI session, you can use `unset AUTH_ENABLED`.
 `JWT_SECRET` - Secret used for signing and decoding JWT. Set this if you have `AUTH_ENABLED` set.
 
 ## About the JWT authentication
