@@ -23,7 +23,6 @@ func main() {
 	}
 
 	questionsDal := dals.NewQuestionsDal(db)
-	//todoHandler := handlers.NewTodoHandler(&questionsDal)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
 
 	r := gin.Default()
@@ -31,7 +30,6 @@ func main() {
 	r.POST("/question", questionHandler.Create)
 	r.GET("/questions", questionHandler.GetAll)
 	r.PUT("/question/:id", questionHandler.Update)
-	// r.DELETE("/todo/:id", todoHandler.Delete)
 
 	port := os.Getenv("API_PORT")
 

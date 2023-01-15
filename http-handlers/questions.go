@@ -5,6 +5,7 @@ import (
 	data "questions/data"
 	models "questions/data/models"
 	httperrors "questions/http-handlers/errors"
+	validators "questions/validators"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,10 @@ func (handler QuestionHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: Add Business logic validation here
+	if validationMsg := validators.Validate(&question); len(validationMsg) != 0 {
+		handler.httpErrors.BadRequestMsg(ctx, validationMsg)
+		return
+	}
 
 	createdQuestion, err := handler.dal.Create(&question)
 
@@ -91,23 +95,3 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, updatedQuestion.ToResponse())
 }
-
-// func (handler TodoHandler) Delete(ctx *gin.Context) {
-// 	id, err := strconv.Atoi(ctx.Param("id"))
-
-// 	if err != nil {
-// 		handler.httpErrors.BadRequestMsg(ctx, "Invalid id parameter")
-// 		return
-// 	}
-
-// 	if _, err := handler.dal.Get(id); err != nil {
-// 		handler.httpErrors.BadRequestMsg(ctx, "Todo does not exist")
-// 	}
-
-// 	if err := handler.dal.Delete(id); err != nil {
-// 		handler.httpErrors.GenericServerErrorEx(ctx, err) // This might not be correct for all cases.
-// 		return
-// 	}
-
-// 	ctx.Status(http.StatusNoContent)
-// }
