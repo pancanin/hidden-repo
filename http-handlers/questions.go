@@ -89,7 +89,7 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, updatedQuestion)
+	ctx.JSON(http.StatusOK, updatedQuestion.ToResponse())
 }
 
 // func (handler TodoHandler) Delete(ctx *gin.Context) {

@@ -49,7 +49,7 @@ func (o *Option) ToResponse() OptionOut {
 }
 
 func ToResponse(options []Option) []OptionOut {
-	var optionsOut []OptionOut
+	var optionsOut []OptionOut = []OptionOut{}
 
 	for _, option := range options {
 		optionsOut = append(optionsOut, option.ToResponse())
