@@ -23,8 +23,8 @@ func main() {
 		log.Fatal("Unable to connect to DB")
 	}
 
-	questionsDal := dals.NewQuestionsDal(db)
 	dals.NewUsersDal(db)
+	questionsDal := dals.NewQuestionsDal(db)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
 
 	r := gin.Default()

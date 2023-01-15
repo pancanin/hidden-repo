@@ -1,7 +1,11 @@
 package data
 
+import uuid "github.com/satori/go.uuid"
+
 type User struct {
-	Username string `gorm:"primary_key;"`
+	ID        uuid.UUID `gorm:"type:uuid;primary_key;"`
+	Username  string
+	Questions []Question
 }
 
 const (
