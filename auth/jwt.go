@@ -31,8 +31,11 @@ func (m *JWTAuthMiddleware) JWTTokenAuthMiddleware() gin.HandlerFunc {
 	_, authEnabledFlag := os.LookupEnv("AUTH_ENABLED")
 
 	if authEnabledFlag {
+		fmt.Println("Auth enabled!")
 		return m.parseAuthReq
 	}
+
+	fmt.Println("Auth disabled!")
 
 	return m.noopAuthReq
 }
@@ -88,6 +91,8 @@ func (m *JWTAuthMiddleware) noopAuthReq(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+
+	fmt.Println("auth user id " + user.ID.String())
 
 	ctx.Request.Header.Add(models.USER_HEADER_ID, user.ID.String())
 	ctx.Next()
