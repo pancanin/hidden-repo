@@ -13,6 +13,7 @@ type QuestionsDal struct {
 
 func NewQuestionsDal(db *gorm.DB) QuestionsDal {
 	db.AutoMigrate(&models.Question{}, &models.Option{})
+	db.Exec("PRAGMA foreign_keys = ON;")
 	return QuestionsDal{db}
 }
 
@@ -77,4 +78,8 @@ func (dal QuestionsDal) Update(questionId uuid.UUID, question *models.QuestionIn
 
 		return nil
 	})
+}
+
+func (dal QuestionsDal) Delete(id uuid.UUID) error {
+	return dal.db.Delete(models.Question{}, id).Error
 }

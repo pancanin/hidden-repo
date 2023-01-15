@@ -30,6 +30,7 @@ func main() {
 	r.POST("/question", questionHandler.Create)
 	r.GET("/questions", questionHandler.GetAll)
 	r.PUT("/question/:id", questionHandler.Update)
+	r.DELETE("/question/:id", questionHandler.Delete)
 
 	port := os.Getenv("API_PORT")
 
