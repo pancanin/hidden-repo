@@ -24,6 +24,7 @@ func main() {
 	}
 
 	questionsDal := dals.NewQuestionsDal(db)
+	dals.NewUsersDal(db)
 	questionHandler := handlers.NewQuestionHandler(&questionsDal)
 
 	r := gin.Default()
