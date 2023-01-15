@@ -1,6 +1,8 @@
 package data
 
 import (
+	"net/http"
+
 	uuid "github.com/satori/go.uuid"
 
 	"gorm.io/gorm"
@@ -57,4 +59,30 @@ func (q *QuestionIn) ToDal() Question {
 		Body:    q.Body,
 		Options: ToDal(q.Options),
 	}
+}
+
+type QuestionCreateParams struct {
+	Question QuestionIn
+	UserID   uuid.UUID
+}
+
+type QuestionUpdateParams struct {
+	Question   QuestionIn
+	UserID     uuid.UUID
+	QuestionID uuid.UUID
+}
+
+type QuestionDeleteParams struct {
+	UserID     uuid.UUID
+	QuestionID uuid.UUID
+}
+
+type QuestionGetOneParams struct {
+	QuestionID uuid.UUID
+	UserID     uuid.UUID
+}
+
+type QuestionsGetPaginatedParams struct {
+	Req    *http.Request
+	UserID uuid.UUID
 }

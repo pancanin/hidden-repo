@@ -1,10 +1,8 @@
 package data
 
 import (
-	"net/http"
 	models "questions/data/models"
 
-	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -24,59 +22,62 @@ func NewQuestionsDal(db *gorm.DB) QuestionsDal {
 	return QuestionsDal{db}
 }
 
-func (dal QuestionsDal) Create(questionIn *models.QuestionIn) (*models.Question, error) {
+func (dal QuestionsDal) Create(params models.QuestionCreateParams) (*models.Question, error) {
 	question := models.Question{
-		Body:    questionIn.Body,
-		Options: models.ToDal(questionIn.Options),
+		Body:    params.Question.Body,
+		Options: models.ToDal(params.Question.Options),
 	}
 
 	if err := dal.db.Create(&question).Error; err != nil {
 		return nil, err
 	}
 
-	return dal.GetOne(question.ID)
+	return dal.GetOne(models.QuestionGetOneParams{
+		QuestionID: question.ID,
+		UserID:     params.UserID,
+	})
 }
 
-func (dal QuestionsDal) GetOne(questionId uuid.UUID) (*models.Question, error) {
+func (dal QuestionsDal) GetOne(params models.QuestionGetOneParams) (*models.Question, error) {
 	question := models.Question{}
 
-	if err := dal.db.Preload("Options").First(&question, questionId).Error; err != nil {
+	if err := dal.db.Preload("Options").First(&question, params.QuestionID).Error; err != nil {
 		return nil, err
 	}
 
 	return &question, nil
 }
 
-func (dal QuestionsDal) GetPaginated(r *http.Request) ([]models.Question, error) {
+func (dal QuestionsDal) GetPaginated(params models.QuestionsGetPaginatedParams) ([]models.Question, error) {
 	var questions []models.Question
 
-	if err := dal.db.Scopes(dal.Paginate(r, PAGING_MAX_PAGES, PAGING_DEFAULT_PAGE_SIZE)).Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
+	if err := dal.db.Scopes(dal.Paginate(params.Req, PAGING_MAX_PAGES, PAGING_DEFAULT_PAGE_SIZE)).Model(models.Question{}).Preload("Options").Find(&questions).Error; err != nil {
 		return questions, err
 	}
 
 	return questions, nil
 }
 
-func (dal QuestionsDal) Update(questionId uuid.UUID, question *models.QuestionIn) error {
+func (dal QuestionsDal) Update(params models.QuestionUpdateParams) error {
 	return dal.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.
 			Model(models.Question{}).
-			Where("id = ?", questionId).
-			Updates(question.ToDal()).
+			Where("id = ?", params.QuestionID).
+			Updates(params.Question.ToDal()).
 			Error
 
 		if err != nil {
 			return err
 		}
 
-		if err := tx.Where("question_id = ?", questionId).Delete(models.Option{}).Error; err != nil {
+		if err := tx.Where("question_id = ?", params.QuestionID).Delete(models.Option{}).Error; err != nil {
 			return err
 		}
 
-		dalOptions := models.ToDal(question.Options)
+		dalOptions := models.ToDal(params.Question.Options)
 
 		for idx := range dalOptions {
-			dalOptions[idx].QuestionID = questionId
+			dalOptions[idx].QuestionID = params.QuestionID
 		}
 
 		if err := tx.Create(dalOptions).Error; err != nil {
@@ -87,6 +88,6 @@ func (dal QuestionsDal) Update(questionId uuid.UUID, question *models.QuestionIn
 	})
 }
 
-func (dal QuestionsDal) Delete(id uuid.UUID) error {
-	return dal.db.Delete(models.Question{}, id).Error
+func (dal QuestionsDal) Delete(params models.QuestionDeleteParams) error {
+	return dal.db.Delete(models.Question{}, params.QuestionID).Error
 }
