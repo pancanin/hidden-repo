@@ -16,14 +16,15 @@ type ErrorResponse struct {
 const (
 	INTERNAL_SERVER_ERROR_MSG = "We are experiencing issues at the moment. Please try again later."
 	INVALID_ID_MSG            = "Invalid id parameter"
+	ENTITY_MISSING_MSG        = "%s does not exist."
 )
 
 func (ErrorMessages) BadRequestMsg(ctx *gin.Context, msg string) {
 	ctx.JSON(http.StatusBadRequest, ErrorResponse{Message: msg})
 }
 
-func (ErrorMessages) EntityNotFound(ctx *gin.Context, entity string) {
-	ErrorMessages.BadRequestMsg(ctx, fmt.Sprintf("%s does not exist.", entity))
+func (em ErrorMessages) EntityNotFound(ctx *gin.Context, entity string) {
+	em.BadRequestMsg(ctx, fmt.Sprintf(ENTITY_MISSING_MSG, entity))
 }
 
 func (ErrorMessages) BadRequestErr(ctx *gin.Context, err error) {

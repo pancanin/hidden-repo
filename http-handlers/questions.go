@@ -11,6 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	ID_PARAM_NAME        = "id"
+	QUESTION_ENTITY_NAME = "Question"
+)
+
 type QuestionHandler struct {
 	dal        *data.QuestionsDal
 	httpErrors httperrors.ErrorMessages
@@ -55,7 +60,7 @@ func (handler QuestionHandler) GetAll(ctx *gin.Context) {
 }
 
 func (handler QuestionHandler) Update(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.Atoi(ctx.Param(ID_PARAM_NAME))
 
 	if err != nil {
 		handler.httpErrors.BadRequestMsg(ctx, httperrors.INVALID_ID_MSG)
@@ -69,15 +74,13 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	questionToUpdate, err := handler.dal.GetOne(uint(id))
-
-	if err != nil {
-		handler.httpErrors.GenericServerErrorEx(ctx, err)
+	if validationMsg := validators.Validate(&questionUpdateData); len(validationMsg) != 0 {
+		handler.httpErrors.BadRequestMsg(ctx, validationMsg)
 		return
 	}
 
-	if questionToUpdate == nil {
-		handler.httpErrors.EntityNotFound(ctx, "Question")
+	if _, err := handler.dal.GetOne(uint(id)); err != nil {
+		handler.httpErrors.EntityNotFound(ctx, QUESTION_ENTITY_NAME)
 		return
 	}
 
