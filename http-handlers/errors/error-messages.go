@@ -17,6 +17,7 @@ const (
 	INTERNAL_SERVER_ERROR_MSG = "We are experiencing issues at the moment. Please try again later."
 	INVALID_ID_MSG            = "Invalid id parameter"
 	ENTITY_MISSING_MSG        = "%s does not exist."
+	INVALID_PAGINATION_PARAMS = "Invalid pagination params. Both 'page' and 'pageSize' are required. Omit both to disable pagination."
 )
 
 func (ErrorMessages) BadRequestMsg(ctx *gin.Context, msg string) {

@@ -49,7 +49,7 @@ func (handler QuestionHandler) Create(ctx *gin.Context) {
 }
 
 func (handler QuestionHandler) GetAll(ctx *gin.Context) {
-	questions, err := handler.dal.GetAll()
+	questions, err := handler.dal.GetPaginated(ctx.Request)
 
 	if err != nil {
 		handler.httpErrors.GenericServerError(ctx)
