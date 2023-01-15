@@ -20,8 +20,8 @@ type QuestionIn struct {
 type Question struct {
 	ID      uuid.UUID `gorm:"type:uuid;primary_key;"`
 	Body    string
-	Options []Option  `gorm:"constraint:OnDelete:CASCADE;"`
-	UserID  uuid.UUID `gorm:"type:uuid;"`
+	Options []Option `gorm:"constraint:OnDelete:CASCADE;"`
+	UserID  uuid.UUID
 }
 
 type QuestionOut struct {

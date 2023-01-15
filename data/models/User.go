@@ -6,9 +6,8 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;"`
-	Username  string    `gorm:"unique;not null;"`
-	Questions []Question
+	ID       uuid.UUID `gorm:"type:uuid;primary_key;"`
+	Username string    `gorm:"unique;not null;"`
 }
 
 func (u *User) BeforeCreate(db *gorm.DB) error {
