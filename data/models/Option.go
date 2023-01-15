@@ -1,5 +1,7 @@
 package data
 
+import uuid "github.com/satori/go.uuid"
+
 type OptionIn struct {
 	Body    string `json:"body" binding:"required,min=1,max=2000"`
 	Correct bool   `json:"correct"`
@@ -8,7 +10,7 @@ type OptionIn struct {
 type Option struct {
 	Body       string
 	Correct    bool
-	QuestionID uint
+	QuestionID uuid.UUID
 }
 
 type OptionOut struct {

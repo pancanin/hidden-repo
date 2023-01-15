@@ -1,20 +1,32 @@
 package data
 
+import (
+	uuid "github.com/satori/go.uuid"
+
+	"gorm.io/gorm"
+)
+
 type QuestionIn struct {
 	Body    string     `json:"body" binding:"required,min=10,max=500"`
 	Options []OptionIn `json:"options"`
 }
 
 type Question struct {
-	ID      uint `gorm:"primarykey"`
+	ID      uuid.UUID `gorm:"type:uuid;primary_key;"`
 	Body    string
 	Options []Option
 }
 
 type QuestionOut struct {
-	ID      uint        `json:"id"`
+	ID      uuid.UUID   `json:"id"`
 	Body    string      `json:"body"`
 	Options []OptionOut `json:"options"`
+}
+
+func (q *Question) BeforeCreate(db *gorm.DB) error {
+	q.ID = uuid.NewV4()
+
+	return nil
 }
 
 func (m *Question) ToResponse() QuestionOut {
@@ -26,7 +38,7 @@ func (m *Question) ToResponse() QuestionOut {
 }
 
 func ToQuestionsResponse(questions []Question) []QuestionOut {
-	var questionsOut []QuestionOut
+	var questionsOut []QuestionOut = []QuestionOut{}
 
 	for _, question := range questions {
 		questionsOut = append(questionsOut, question.ToResponse())

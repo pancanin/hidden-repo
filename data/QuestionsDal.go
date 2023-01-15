@@ -3,6 +3,7 @@ package data
 import (
 	models "questions/data/models"
 
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -28,7 +29,7 @@ func (dal QuestionsDal) Create(questionIn *models.QuestionIn) (*models.Question,
 	return dal.GetOne(question.ID)
 }
 
-func (dal QuestionsDal) GetOne(questionId uint) (*models.Question, error) {
+func (dal QuestionsDal) GetOne(questionId uuid.UUID) (*models.Question, error) {
 	question := models.Question{}
 
 	if err := dal.db.Preload("Options").First(&question, questionId).Error; err != nil {
@@ -48,7 +49,7 @@ func (dal QuestionsDal) GetAll() ([]models.Question, error) {
 	return questions, nil
 }
 
-func (dal QuestionsDal) Update(questionId uint, question *models.QuestionIn) error {
+func (dal QuestionsDal) Update(questionId uuid.UUID, question *models.QuestionIn) error {
 	return dal.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.
 			Model(models.Question{}).

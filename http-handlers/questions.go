@@ -6,9 +6,9 @@ import (
 	models "questions/data/models"
 	httperrors "questions/http-handlers/errors"
 	validators "questions/validators"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -60,7 +60,7 @@ func (handler QuestionHandler) GetAll(ctx *gin.Context) {
 }
 
 func (handler QuestionHandler) Update(ctx *gin.Context) {
-	id, err := strconv.Atoi(ctx.Param(ID_PARAM_NAME))
+	id, err := uuid.FromString(ctx.Param(ID_PARAM_NAME))
 
 	if err != nil {
 		handler.httpErrors.BadRequestMsg(ctx, httperrors.INVALID_ID_MSG)
@@ -79,17 +79,17 @@ func (handler QuestionHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := handler.dal.GetOne(uint(id)); err != nil {
+	if _, err := handler.dal.GetOne(id); err != nil {
 		handler.httpErrors.EntityNotFound(ctx, QUESTION_ENTITY_NAME)
 		return
 	}
 
-	if err := handler.dal.Update(uint(id), &questionUpdateData); err != nil {
+	if err := handler.dal.Update(id, &questionUpdateData); err != nil {
 		handler.httpErrors.GenericServerError(ctx)
 		return
 	}
 
-	updatedQuestion, err := handler.dal.GetOne(uint(id))
+	updatedQuestion, err := handler.dal.GetOne(id)
 
 	if err != nil {
 		handler.httpErrors.GenericServerError(ctx)
